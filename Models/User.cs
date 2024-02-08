@@ -13,9 +13,11 @@ namespace baigiamasis2.Models
         public long PersonalIndefication { get; set; }
         public string Email { get; set; } = string.Empty;
 
-        public LoginInfo LoginInfo { get; set; }
+        [Required]
+        public UserAdress Adress { get; set; }
 
-        public List<UserAdress> LivingInfo { get; set; } = new List<UserAdress>();
+        [Required]
+        public LoginInfo LoginInfo { get; set; }
 
         [Required]
         public Image Image { get; set; }

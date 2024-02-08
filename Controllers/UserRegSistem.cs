@@ -11,14 +11,10 @@ namespace baigiamasis2.Controllers
     public class UserRegSistem : ControllerBase
     {
         private readonly UserService _userService;
-        private readonly AddressService _addressService;
-        private readonly ImageService _imageService;
 
-        public UserRegSistem(UserService userService, AddressService addressService, ImageService imageService)
+        public UserRegSistem(UserService userService)
         {
             _userService = userService;
-            _addressService = addressService;
-            _imageService = imageService;
         }
 
         /// <summary>
@@ -81,7 +77,7 @@ namespace baigiamasis2.Controllers
         {
             try
             {
-                _addressService.CreateUserAddress(userAddress);
+                _userService.CreateUserAddress(userAddress);
                 return Ok();
             }
             catch (Exception ex)
@@ -104,7 +100,7 @@ namespace baigiamasis2.Controllers
         {
             try
             {
-                _addressService.UpdateUserAddress(userAddress);
+                _userService.UpdateUserAddress(userAddress);
                 return Ok();
             }
             catch (Exception ex)
@@ -127,7 +123,7 @@ namespace baigiamasis2.Controllers
         {
             try
             {
-                _imageService.CreateImage(image);
+                _userService.CreateImage(image);
                 return Ok();
             }
             catch (Exception ex)
@@ -150,8 +146,51 @@ namespace baigiamasis2.Controllers
         {
             try
             {
-                _imageService.UpdateImage(image);
+                _userService.UpdateImage(image);
                 return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { ErrorMessage = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Удаляет пользователя по идентификатору.
+        /// </summary>
+        /// <param name="userId">Идентификатор пользователя.</param>
+        /// <returns>HTTP-статус 200 в случае успешного удаления или HTTP-статус 400 в случае ошибки.</returns>
+        [HttpDelete("user/delete/{userId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult DeleteUser(long userId)
+        {
+            try
+            {
+                _userService.DeleteUser(userId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { ErrorMessage = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Получает пользователя по идентификатору.
+        /// </summary>
+        /// <param name="userId">Идентификатор пользователя.</param>
+        /// <returns>HTTP-статус 200 с данными пользователя или HTTP-статус 400 в случае ошибки.</returns>
+        [HttpGet("user/{userId}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult GetUserByUserId(long userId)
+        {
+            try
+            {
+                var user = _userService.GetUserByUserId(userId);
+                return Ok(user);
             }
             catch (Exception ex)
             {

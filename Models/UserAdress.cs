@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace baigiamasis2.Models
 {
@@ -11,5 +12,8 @@ namespace baigiamasis2.Models
         public string HomeNumer { get; set; } = string.Empty;
         public string? FlatNumber { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty; //home, work, hollyday
+
+        [ForeignKey(nameof(User))]
+        public long UserId { get; set; }
     }
 }
