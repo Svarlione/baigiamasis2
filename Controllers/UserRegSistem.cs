@@ -5,6 +5,9 @@ using baigiamasis2.Models;
 using baigiamasis2.DTO;
 using baigiamasis2.Services.Mappers;
 using baigiamasis2.Services.UserServices;
+using baigiamasis2.Services.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
+using System.Text;
 
 /// <summary>
 /// Контроллер для управления пользователями в системе регистрации.
@@ -15,11 +18,12 @@ public class UserRegSistem : ControllerBase
 {
     private readonly UserService _userService;
     private readonly UserMapper _userMapper;
-
-    public UserRegSistem(UserService userService, UserMapper userMapper)
+    private readonly IAuthService _authService;
+    public UserRegSistem(UserService userService, UserMapper userMapper, IAuthService authService)
     {
         _userService = userService;
         _userMapper = userMapper;
+        _authService = authService;
     }
 
     /// <summary>
@@ -203,6 +207,45 @@ public class UserRegSistem : ControllerBase
         {
             var user = _userService.GetUserByUserId(userId);
             return Ok(user);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { ErrorMessage = ex.Message });
+        }
+    }
+
+    [HttpPost("login")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Login([FromBody] LoginInfoDto request)
+    {
+        try
+        {
+            // Преобразовать пароль из byte[] в строку
+            string password = Encoding.UTF8.GetString(request.Password);
+
+            var token = await _authService.LoginAsync(request.UserName, password);
+            return Ok(new { Token = token });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { ErrorMessage = ex.Message });
+        }
+    }
+
+    [HttpPost("signup")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SignUp([FromBody] SingUpDto request)
+    {
+        try
+        {
+            var token = await _authService.SignUpAsync(request.UserName, request.Role, request.Password);
+            return Ok(new { Token = token });
         }
         catch (Exception ex)
         {

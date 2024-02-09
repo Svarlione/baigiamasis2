@@ -1,81 +1,78 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using baigiamasis2.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using baigiamasis2.DTO;
-using baigiamasis2.Models;
-using baigiamasis2.Services.Mappers;
 
 namespace baigiamasis2.Services.Authorization
 {
     public class AuthService : IAuthService
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly IPasswordHasher<User> _passwordHasher;
-        private readonly IUserMapper _mapper;
 
-        public AuthService(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration, IPasswordHasher<User> passwordHasher, IUserMapper userMapper)
+        public AuthService(IConfiguration configuration, IPasswordHasher<User> passwordHasher)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
             _configuration = configuration;
             _passwordHasher = passwordHasher;
-            _mapper = userMapper;
         }
 
-        public async Task<string> LoginAsync(string UserName, string Password)
+        public async Task<string> LoginAsync(string userName, string password)
         {
-            var user = await _userManager.FindByNameAsync(UserName);
+            // Реализуйте логику поиска пользователя и проверки пароля
+            var user = await FindUserByNameAsync(userName);
 
-            if (user == null || !await _userManager.CheckPasswordAsync(user, Password))
+            if (user == null || !VerifyPassword(user.LoginInfo, password))
             {
                 throw new InvalidOperationException("Invalid username or password.");
             }
 
-            var roles = await _userManager.GetRolesAsync(user);
-            var token = GenerateJwtToken(user, roles);
+            var token = GenerateJwtToken(user.LoginInfo);
 
             return token;
         }
 
-        public async Task<string> SignUpAsync(LoginInfoDto signUpDto)
+        public async Task<string> SignUpAsync(string username, string role, string password)
         {
-            _mapper.MapToUserEntity(signUpDto);
-
-            // Хеширование пароля с использованием PasswordHasher
-            var passwordHash = _passwordHasher.HashPassword(user, Encoding.UTF8.GetString(signUpDto.Password));
-            user.LoginInfo.Password = passwordHash;
-
-            var result = await _userManager.CreateAsync(user);
-
-            if (!result.Succeeded)
+            var loginInfo = new LoginInfo
             {
-                throw new InvalidOperationException(result.Errors.First().Description);
-            }
+                UserName = username,
+                Password = HashPassword(password),
+                Role = role
+            };
 
-            await _userManager.AddToRoleAsync(user, signUpDto.Role);
+            // Реализуйте логику добавления пользователя в роль
 
-            var roles = await _userManager.GetRolesAsync(user);
-            var token = GenerateJwtToken(user, roles);
+            var token = GenerateJwtToken(loginInfo);
 
             return token;
         }
 
-        private string GenerateJwtToken(User user, IList<string> roles)
+        private byte[] HashPassword(string password)
+        {
+            return Encoding.UTF8.GetBytes(_passwordHasher.HashPassword(null, password));
+        }
+
+        private bool VerifyPassword(LoginInfo loginInfo, string password)
+        {
+            var result = _passwordHasher.VerifyHashedPassword(null, Convert.ToBase64String(loginInfo.Password), password);
+            return result == PasswordVerificationResult.Success;
+        }
+
+
+
+        private string GenerateJwtToken(LoginInfo loginInfo)
         {
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]);
             var issuer = _configuration["Jwt:Issuer"];
             var audience = _configuration["Jwt:Audience"];
             var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.UserName),
-        };
-
-            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            {
+                new Claim(ClaimTypes.NameIdentifier, loginInfo.UserId.ToString()),
+                new Claim(ClaimTypes.Name, loginInfo.UserName, ClaimValueTypes.String),
+                new Claim(ClaimTypes.Role, loginInfo.Role),
+            };
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -92,5 +89,12 @@ namespace baigiamasis2.Services.Authorization
             return tokenHandler.WriteToken(token);
         }
 
+
+        // Реализуйте логику поиска пользователя
+        private Task<User> FindUserByNameAsync(string userName)
+        {
+            return Task.FromResult(new User { LoginInfo = new LoginInfo { UserName = userName } });
+
+        }
     }
 }

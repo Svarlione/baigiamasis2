@@ -16,8 +16,8 @@ namespace baigiamasis2.DTO
         [RegularExpression(".*[A-Z].*", ErrorMessage = "Slaptažodyje turi būti bent viena didžioji raidė")]
         public byte[] Password { get; set; }
 
-        public byte[] PasswordSalt { get; set; }
 
-        public string Role { get; set; } = "user";
+
+
     }
 }

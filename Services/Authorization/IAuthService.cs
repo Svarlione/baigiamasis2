@@ -1,10 +1,9 @@
-﻿using baigiamasis2.DTO;
-
+﻿
 namespace baigiamasis2.Services.Authorization
 {
     public interface IAuthService
     {
-        Task<string> LoginAsync(string UserName, string Password);
-        Task<string> SignUpAsync(LoginInfoDto signUpDto);
+        Task<string> LoginAsync(string userName, string password);
+        Task<string> SignUpAsync(string username, string role, string password);
     }
 }
