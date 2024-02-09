@@ -12,7 +12,7 @@ namespace baigiamasis2.DTO
         public ImageDto? Image { get; set; }
 
         [RegularExpression(@"^\d{9}$", ErrorMessage = "Netinkamas telefono numerio formatas")]
-        public long PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; }
 
         [MinLength(6, ErrorMessage = "Slaptažodis turi turėti bent 6 simbolius")]
         [RegularExpression(".*[A-Z].*", ErrorMessage = "Slaptažodyje turi būti bent viena didžioji raidė")]

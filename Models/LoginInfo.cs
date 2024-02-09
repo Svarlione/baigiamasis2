@@ -14,6 +14,6 @@ namespace baigiamasis2.Models
 
         [ForeignKey(nameof(User))]
         public long UserId { get; set; }
-        public User User { get; set; }
+
     }
 }

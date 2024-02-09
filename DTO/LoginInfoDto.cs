@@ -15,5 +15,9 @@ namespace baigiamasis2.DTO
         [MinLength(6, ErrorMessage = "Slaptažodis turi turėti bent 6 simbolius")]
         [RegularExpression(".*[A-Z].*", ErrorMessage = "Slaptažodyje turi būti bent viena didžioji raidė")]
         public byte[] Password { get; set; }
+
+        public byte[] PasswordSalt { get; set; }
+
+        public string Role { get; set; } = "user";
     }
 }

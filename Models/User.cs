@@ -10,7 +10,7 @@ namespace baigiamasis2.Models
         public string FirstName { get; set; } = string.Empty;
         public string LaststName { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
-        public long PersonalIndefication { get; set; }
+        public string PersonalIndefication { get; set; }
         public string Email { get; set; } = string.Empty;
 
         [Required]

@@ -1,6 +1,8 @@
 
 using baigiamasis2.Data;
-using baigiamasis2.Services;
+using baigiamasis2.Services.Authorization;
+using baigiamasis2.Services.Mappers;
+using baigiamasis2.Services.UserServices;
 using Microsoft.EntityFrameworkCore;
 
 namespace baigiamasis2
@@ -12,6 +14,8 @@ namespace baigiamasis2
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddTransient<IAuthService, AuthService>();
+            builder.Services.AddTransient<IUserMapper, UserMapper>();
             builder.Services.AddScoped<IDbRepository, DbRepository>();
             builder.Services.AddTransient<IUserService, UserService>();
             builder.Services.AddControllers();
